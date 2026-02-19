@@ -1,19 +1,18 @@
-<h1 align="center">📱 React Native X Clone Tutorial 🚀</h1>
+<h1 align="center">📱🌐 X Clone - Full Stack Social Media Platform 🚀</h1>
 
-Welcome to the **X Clone**, a fully functional clone of the X (formerly Twitter) app using
-React Native — and deploy both frontend and backend with full authentication and cloud database
-integration.
+Welcome to the **X Clone**, a fully functional clone of the X (formerly Twitter) platform with **both Mobile (React Native) and Web (Next.js)** versions sharing the same backend API.
 
 ---
 
 ## 🎯 What Was Built
 
-**Full-stack mobile development** guide.
+**Full-stack development** with multi-platform support.
 
-✅ Built with your existing **React knowledge**  
-✅ Runs on both **Android & iOS**  
-✅ No Swift, Kotlin, or other languages needed  
-✅ Build the whole project in **under 7 hours**
+✅ **Mobile App** built with React Native (iOS & Android)  
+✅ **Web App** built with Next.js 15 (Desktop & Mobile Web)  
+✅ **Shared Backend API** with Express.js & MongoDB  
+✅ **Same authentication** works across all platforms  
+✅ Real-time updates and modern UI/UX
 
 ---
 
@@ -70,19 +69,114 @@ EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=<your_clerk_publishable_key>
 EXPO_PUBLIC_API_URL=<your_backend_api_url>
 ```
 
-## ⚙️ Run the backend
+### 🌐 Web (`/web`)
+
+```bash
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=<your_clerk_publishable_key>
+CLERK_SECRET_KEY=<your_clerk_secret_key>
+
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:5001/api
+# For production: https://x-clone-rn.vercel.app/api
+
+# Clerk URLs
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1️⃣ Run the Backend
 
 ```bash
 cd backend
 npm install
 npm run dev
-
 ```
 
-## 📱 Run the mobile
+The backend will run on `http://localhost:5001`
+
+### 2️⃣ Run the Mobile App
 
 ```bash
 cd mobile
 npm install
 npx expo start
 ```
+
+Scan the QR code with Expo Go app on your phone or press `i` for iOS simulator / `a` for Android emulator.
+
+### 3️⃣ Run the Web App
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+The web app will be available at `http://localhost:3000`
+
+---
+
+## 📂 Project Structure
+
+```
+x-clone/
+├── backend/          # Express.js REST API
+│   ├── src/
+│   │   ├── config/   # Database, Cloudinary, Arcjet config
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   └── routes/
+│   └── package.json
+│
+├── mobile/           # React Native (Expo) App
+│   ├── app/          # File-based routing
+│   ├── components/
+│   ├── hooks/
+│   ├── types/
+│   └── package.json
+│
+└── web/              # Next.js Web App
+    ├── src/
+    │   ├── app/      # Next.js App Router
+    │   ├── components/
+    │   ├── hooks/
+    │   ├── lib/
+    │   └── types/
+    └── package.json
+```
+
+---
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: MongoDB (Mongoose)
+- **Authentication**: Clerk
+- **Image Upload**: Cloudinary
+- **Security**: Arcjet (Rate limiting, bot detection, DDoS protection)
+
+### Mobile App
+- **Framework**: React Native (Expo)
+- **Language**: TypeScript
+- **Styling**: NativeWind (Tailwind for React Native)
+- **State Management**: TanStack Query
+- **Navigation**: Expo Router
+- **Authentication**: Clerk
+
+### Web App
+- **Framework**: Next.js 15
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: TanStack Query
+- **Authentication**: Clerk
+- **Icons**: React Icons
