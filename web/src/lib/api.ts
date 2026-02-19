@@ -1,13 +1,14 @@
 import axios, { AxiosInstance } from "axios";
-import { useAuth } from "@clerk/clerk-expo";
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://x-clone-rn.vercel.app/api";
-// ! 🔥 localhost api would not work on your actual physical device
-// const API_BASE_URL = "http://localhost:5001/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api";
 
-// this will basically create an authenticated api, pass the token into our headers
 export const createApiClient = (getToken: () => Promise<string | null>): AxiosInstance => {
-  const api = axios.create({ baseURL: API_BASE_URL });
+  const api = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
   api.interceptors.request.use(async (config) => {
     const token = await getToken();
@@ -20,20 +21,24 @@ export const createApiClient = (getToken: () => Promise<string | null>): AxiosIn
   return api;
 };
 
-export const useApiClient = (): AxiosInstance => {
-  const { getToken } = useAuth();
-  return createApiClient(getToken);
-};
-
+// API Endpoints
 export const userApi = {
   syncUser: (api: AxiosInstance) => api.post("/users/sync"),
   getCurrentUser: (api: AxiosInstance) => api.get("/users/me"),
+  getUserProfile: (api: AxiosInstance, username: string) =>
+    api.get(`/users/profile/${encodeURIComponent(username)}`),
   updateProfile: (api: AxiosInstance, data: any) => api.put("/users/profile", data),
+  followUser: (api: AxiosInstance, userId: string) =>
+    api.post(`/users/follow/${encodeURIComponent(userId)}`),
 };
 
 export const postApi = {
-  createPost: (api: AxiosInstance, data: { content: string; image?: string }) =>
-    api.post("/posts", data),
+  createPost: (api: AxiosInstance, data: FormData) =>
+    api.post("/posts", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
   getPosts: (api: AxiosInstance) => api.get("/posts"),
   getUserPosts: (api: AxiosInstance, username: string) =>
     api.get(`/posts/user/${encodeURIComponent(username)}`),
@@ -44,6 +49,16 @@ export const postApi = {
 };
 
 export const commentApi = {
+  getComments: (api: AxiosInstance, postId: string) =>
+    api.get(`/comments/post/${encodeURIComponent(postId)}`),
   createComment: (api: AxiosInstance, postId: string, content: string) =>
     api.post(`/comments/post/${encodeURIComponent(postId)}`, { content }),
+  deleteComment: (api: AxiosInstance, commentId: string) =>
+    api.delete(`/comments/${encodeURIComponent(commentId)}`),
+};
+
+export const notificationApi = {
+  getNotifications: (api: AxiosInstance) => api.get("/notifications"),
+  deleteNotification: (api: AxiosInstance, notificationId: string) =>
+    api.delete(`/notifications/${encodeURIComponent(notificationId)}`),
 };
