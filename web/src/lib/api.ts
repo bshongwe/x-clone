@@ -25,9 +25,11 @@ export const createApiClient = (getToken: () => Promise<string | null>): AxiosIn
 export const userApi = {
   syncUser: (api: AxiosInstance) => api.post("/users/sync"),
   getCurrentUser: (api: AxiosInstance) => api.get("/users/me"),
-  getUserProfile: (api: AxiosInstance, username: string) => api.get(`/users/profile/${username}`),
+  getUserProfile: (api: AxiosInstance, username: string) =>
+    api.get(`/users/profile/${encodeURIComponent(username)}`),
   updateProfile: (api: AxiosInstance, data: any) => api.put("/users/profile", data),
-  followUser: (api: AxiosInstance, userId: string) => api.post(`/users/follow/${userId}`),
+  followUser: (api: AxiosInstance, userId: string) =>
+    api.post(`/users/follow/${encodeURIComponent(userId)}`),
 };
 
 export const postApi = {
@@ -38,20 +40,25 @@ export const postApi = {
       },
     }),
   getPosts: (api: AxiosInstance) => api.get("/posts"),
-  getUserPosts: (api: AxiosInstance, username: string) => api.get(`/posts/user/${username}`),
-  likePost: (api: AxiosInstance, postId: string) => api.post(`/posts/${postId}/like`),
-  deletePost: (api: AxiosInstance, postId: string) => api.delete(`/posts/${postId}`),
+  getUserPosts: (api: AxiosInstance, username: string) =>
+    api.get(`/posts/user/${encodeURIComponent(username)}`),
+  likePost: (api: AxiosInstance, postId: string) =>
+    api.post(`/posts/${encodeURIComponent(postId)}/like`),
+  deletePost: (api: AxiosInstance, postId: string) =>
+    api.delete(`/posts/${encodeURIComponent(postId)}`),
 };
 
 export const commentApi = {
-  getComments: (api: AxiosInstance, postId: string) => api.get(`/comments/post/${postId}`),
+  getComments: (api: AxiosInstance, postId: string) =>
+    api.get(`/comments/post/${encodeURIComponent(postId)}`),
   createComment: (api: AxiosInstance, postId: string, content: string) =>
-    api.post(`/comments/post/${postId}`, { content }),
-  deleteComment: (api: AxiosInstance, commentId: string) => api.delete(`/comments/${commentId}`),
+    api.post(`/comments/post/${encodeURIComponent(postId)}`, { content }),
+  deleteComment: (api: AxiosInstance, commentId: string) =>
+    api.delete(`/comments/${encodeURIComponent(commentId)}`),
 };
 
 export const notificationApi = {
   getNotifications: (api: AxiosInstance) => api.get("/notifications"),
   deleteNotification: (api: AxiosInstance, notificationId: string) =>
-    api.delete(`/notifications/${notificationId}`),
+    api.delete(`/notifications/${encodeURIComponent(notificationId)}`),
 };
