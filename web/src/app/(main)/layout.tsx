@@ -1,20 +1,24 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import RightSidebar from "@/components/layout/RightSidebar";
 import { useUserSync } from "@/hooks/useUserSync";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { isSignedIn, isLoaded } = useAuth();
+  const router = useRouter();
 
   // Sync user with backend
   useUserSync();
 
-  if (isLoaded && !isSignedIn) {
-    redirect("/sign-in");
-  }
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in");
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   if (!isLoaded) {
     return (
@@ -22,6 +26,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-twitter-blue"></div>
       </div>
     );
+  }
+
+  if (!isSignedIn) {
+    return null; // Prevent flash of content while redirecting
   }
 
   return (

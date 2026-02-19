@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { createApiClient, commentApi } from "@/lib/api";
@@ -20,6 +20,31 @@ export default function CommentsModal({ post, onClose }: CommentsModalProps) {
   const queryClient = useQueryClient();
   const [newComment, setNewComment] = useState("");
   const { data: comments, isLoading } = useComments(post._id);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Focus trap and escape key handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    // Focus the close button when modal opens
+    closeButtonRef.current?.focus();
+
+    // Add event listener
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [onClose]);
 
   const createCommentMutation = useMutation({
     mutationFn: async (content: string) => {
@@ -105,31 +130,37 @@ export default function CommentsModal({ post, onClose }: CommentsModalProps) {
   };
 
   return (
+    // Overlay backdrop - clickable area to close modal
     <button
       type="button"
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 border-none cursor-default"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 border-0 cursor-default"
       onClick={onClose}
-      onKeyDown={(e: React.KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          onClose();
-        }
-      }}
-      aria-label="Close modal"
+      aria-label="Close modal overlay"
     >
-      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
-      <div
-        className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
-        onClick={handleModalContentClick}
-        onKeyDown={handleModalContentKeyDown}
+      {/* Modal dialog container */}
+      <dialog
+        ref={dialogRef}
+        open
+        aria-labelledby="modal-title"
+        className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden border-0 p-0 m-0 relative"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-twitter-extraLightGray">
-          <h2 className="text-xl font-bold">Comments</h2>
+        {/* Wrapper div to handle event propagation - prevents modal close on content click */}
+        {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
+        <div
+          onClick={handleModalContentClick}
+          onKeyDown={handleModalContentKeyDown}
+          className="h-full"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-twitter-extraLightGray">
+          <h2 id="modal-title" className="text-xl font-bold">Comments</h2>
           <button
+            ref={closeButtonRef}
             onClick={onClose}
+            aria-label="Close comments modal"
             className="p-2 hover:bg-twitter-extraExtraLightGray rounded-full transition-colors"
           >
-            <FiX className="text-xl" />
+            <FiX className="text-xl" aria-hidden="true" />
           </button>
         </div>
 
@@ -182,7 +213,8 @@ export default function CommentsModal({ post, onClose }: CommentsModalProps) {
             </button>
           </div>
         </form>
-      </div>
+        </div>
+      </dialog>
     </button>
   );
 }

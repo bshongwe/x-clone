@@ -38,18 +38,13 @@ export default function PostCard({ post }: PostCardProps) {
 
   // Helper: Update posts data with new like state
   const updatePostsWithLike = (oldData: any): any => {
-    if (!oldData?.data?.posts) return oldData;
+    if (!Array.isArray(oldData)) return oldData;
 
-    const updatedPosts = oldData.data.posts.map((p: any) => {
+    return oldData.map((p: any) => {
       if (p._id !== post._id) return p;
       const updatedLikes = isLiked ? removeLike(p.likes) : addLike(p.likes);
       return { ...p, likes: updatedLikes };
     });
-
-    return {
-      ...oldData,
-      data: { ...oldData.data, posts: updatedPosts },
-    };
   };
 
   const likeMutation = useMutation({
