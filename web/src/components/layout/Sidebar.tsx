@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { FiHome, FiBell, FiUser, FiLogOut } from "react-icons/fi";
+import { FiHome, FiBell, FiUser, FiLogOut, FiSearch, FiMail } from "react-icons/fi";
 import { useAuth, useUser } from "@clerk/nextjs";
 
 export default function Sidebar() {
@@ -17,6 +17,8 @@ export default function Sidebar() {
 
   const navItems = [
     { icon: FiHome, label: "Home", href: "/home" },
+    { icon: FiSearch, label: "Search", href: "/search" },
+    { icon: FiMail, label: "Messages", href: "/messages" },
     { icon: FiBell, label: "Notifications", href: "/notifications" },
     {
       icon: FiUser,

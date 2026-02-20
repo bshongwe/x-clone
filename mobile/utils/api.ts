@@ -47,3 +47,13 @@ export const commentApi = {
   createComment: (api: AxiosInstance, postId: string, content: string) =>
     api.post(`/comments/post/${encodeURIComponent(postId)}`, { content }),
 };
+
+export const messageApi = {
+  getConversations: (api: AxiosInstance) => api.get("/messages/conversations"),
+  getMessages: (api: AxiosInstance, conversationId: string) =>
+    api.get(`/messages/conversations/${encodeURIComponent(conversationId)}`),
+  sendMessage: (api: AxiosInstance, data: { recipientId: string; content: string }) =>
+    api.post("/messages/send", data),
+  deleteConversation: (api: AxiosInstance, conversationId: string) =>
+    api.delete(`/messages/conversations/${encodeURIComponent(conversationId)}`),
+};

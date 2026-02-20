@@ -11,6 +11,7 @@ import { formatDistanceToNow } from "date-fns";
 import { FiHeart, FiMessageCircle, FiTrash2 } from "react-icons/fi";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import CommentsModal from "./CommentsModal";
+import { formatNumber } from "@/lib/utils";
 
 interface PostCardProps {
   readonly post: Post;
@@ -146,7 +147,7 @@ export default function PostCard({ post }: PostCardProps) {
                 <div className="p-2 rounded-full group-hover:bg-twitter-blue group-hover:bg-opacity-10">
                   <FiMessageCircle />
                 </div>
-                <span className="text-sm">{post.comments.length}</span>
+                <span className="text-sm">{formatNumber(post.comments.length)}</span>
               </button>
 
               <button
@@ -158,7 +159,7 @@ export default function PostCard({ post }: PostCardProps) {
                 <div className="p-2 rounded-full group-hover:bg-red-500 group-hover:bg-opacity-10">
                   <FiHeart className={isLiked ? "fill-current" : ""} />
                 </div>
-                <span className="text-sm">{post.likes.length}</span>
+                <span className="text-sm">{formatNumber(post.likes.length)}</span>
               </button>
             </div>
           </div>

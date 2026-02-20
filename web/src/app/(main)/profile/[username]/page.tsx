@@ -10,7 +10,17 @@ import { useState } from "react";
 export default function ProfilePage() {
   const params = useParams();
   const username = params.username as string;
-  const { data: profile, isLoading } = useProfile(username);
+  const {
+    data: profile,
+    isLoading,
+    isEditModalOpen,
+    formData,
+    openEditModal,
+    closeEditModal,
+    saveProfile,
+    updateFormField,
+    isUpdating,
+  } = useProfile(username);
   const { data: currentUser } = useCurrentUser();
   const [activeTab, setActiveTab] = useState<"posts" | "likes">("posts");
 
@@ -32,10 +42,29 @@ export default function ProfilePage() {
     );
   }
 
+  const handleOpenEdit = () => {
+    openEditModal({
+      firstName: profile.user.firstName || "",
+      lastName: profile.user.lastName || "",
+      bio: profile.user.bio || "",
+      location: profile.user.location || "",
+    });
+  };
+
   return (
     <div className="min-h-screen">
       {/* Profile Header */}
-      <ProfileHeader user={profile.user} isOwnProfile={isOwnProfile} />
+      <ProfileHeader
+        user={profile.user}
+        isOwnProfile={isOwnProfile}
+        isEditModalOpen={isEditModalOpen}
+        formData={formData}
+        onOpenEdit={handleOpenEdit}
+        onCloseEdit={closeEditModal}
+        onSaveProfile={saveProfile}
+        onFieldChange={updateFormField}
+        isUpdating={isUpdating}
+      />
 
       {/* Tabs */}
       <div className="flex border-b border-twitter-extraLightGray">

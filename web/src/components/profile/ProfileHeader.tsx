@@ -4,79 +4,118 @@ import { User } from "@/types";
 import Image from "next/image";
 import { FiMapPin, FiCalendar } from "react-icons/fi";
 import { format } from "date-fns";
+import EditProfileModal from "./EditProfileModal";
 
 interface ProfileHeaderProps {
   readonly user: User;
   readonly isOwnProfile: boolean;
+  readonly isEditModalOpen?: boolean;
+  readonly formData?: {
+    firstName: string;
+    lastName: string;
+    bio: string;
+    location: string;
+  };
+  readonly onOpenEdit?: () => void;
+  readonly onCloseEdit?: () => void;
+  readonly onSaveProfile?: () => void;
+  readonly onFieldChange?: (field: string, value: string) => void;
+  readonly isUpdating?: boolean;
 }
 
-export default function ProfileHeader({ user, isOwnProfile }: ProfileHeaderProps) {
+export default function ProfileHeader({
+  user,
+  isOwnProfile,
+  isEditModalOpen = false,
+  formData,
+  onOpenEdit,
+  onCloseEdit,
+  onSaveProfile,
+  onFieldChange,
+  isUpdating = false,
+}: ProfileHeaderProps) {
   return (
-    <div>
-      {/* Banner */}
-      <div className="h-48 bg-gradient-to-r from-twitter-blue to-twitter-darkBlue relative">
-        {user.bannerImage && (
-          <Image src={user.bannerImage} alt="Banner" fill className="object-cover" />
-        )}
-      </div>
-
-      {/* Profile Info */}
-      <div className="px-4 pb-4">
-        <div className="flex justify-between items-start -mt-16 mb-4">
-          <div className="border-4 border-white rounded-full">
-            {user.profilePicture ? (
-              <Image
-                src={user.profilePicture}
-                alt={user.username}
-                width={128}
-                height={128}
-                className="rounded-full"
-              />
-            ) : (
-              <div className="w-32 h-32 bg-twitter-lightGray rounded-full"></div>
-            )}
-          </div>
-
-          {isOwnProfile && (
-            <button className="mt-16 px-4 py-2 border border-twitter-extraLightGray rounded-full font-bold hover:bg-twitter-extraExtraLightGray transition-colors">
-              Edit Profile
-            </button>
+    <>
+      <div>
+        {/* Banner */}
+        <div className="h-48 bg-gradient-to-r from-twitter-blue to-twitter-darkBlue relative">
+          {user.bannerImage && (
+            <Image src={user.bannerImage} alt="Banner" fill className="object-cover" />
           )}
         </div>
 
-        <div>
-          <h1 className="text-2xl font-bold text-twitter-black">
-            {user.firstName} {user.lastName}
-          </h1>
-          <p className="text-twitter-darkGray">@{user.username}</p>
-
-          {user.bio && <p className="mt-3 text-twitter-black">{user.bio}</p>}
-
-          <div className="flex flex-wrap items-center gap-4 mt-3 text-twitter-darkGray text-sm">
-            {user.location && (
-              <div className="flex items-center space-x-1">
-                <FiMapPin />
-                <span>{user.location}</span>
-              </div>
-            )}
-            <div className="flex items-center space-x-1">
-              <FiCalendar />
-              <span>Joined {format(new Date(user.createdAt), "MMMM yyyy")}</span>
+        {/* Profile Info */}
+        <div className="px-4 pb-4">
+          <div className="flex justify-between items-start -mt-16 mb-4">
+            <div className="border-4 border-white rounded-full">
+              {user.profilePicture ? (
+                <Image
+                  src={user.profilePicture}
+                  alt={user.username}
+                  width={128}
+                  height={128}
+                  className="rounded-full"
+                />
+              ) : (
+                <div className="w-32 h-32 bg-twitter-lightGray rounded-full"></div>
+              )}
             </div>
+
+            {isOwnProfile && onOpenEdit && (
+              <button
+                onClick={onOpenEdit}
+                className="mt-16 px-4 py-2 border border-twitter-extraLightGray rounded-full font-bold hover:bg-twitter-extraExtraLightGray transition-colors"
+              >
+                Edit Profile
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-6 mt-3">
-            <div>
-              <span className="font-bold text-twitter-black">{user.following.length}</span>
-              <span className="text-twitter-darkGray ml-1">Following</span>
+          <div>
+            <h1 className="text-2xl font-bold text-twitter-black">
+              {user.firstName} {user.lastName}
+            </h1>
+            <p className="text-twitter-darkGray">@{user.username}</p>
+
+            {user.bio && <p className="mt-3 text-twitter-black">{user.bio}</p>}
+
+            <div className="flex flex-wrap items-center gap-4 mt-3 text-twitter-darkGray text-sm">
+              {user.location && (
+                <div className="flex items-center space-x-1">
+                  <FiMapPin />
+                  <span>{user.location}</span>
+                </div>
+              )}
+              <div className="flex items-center space-x-1">
+                <FiCalendar />
+                <span>Joined {format(new Date(user.createdAt), "MMMM yyyy")}</span>
+              </div>
             </div>
-            <div>
-              <span className="font-bold text-twitter-black">{user.followers.length}</span>
-              <span className="text-twitter-darkGray ml-1">Followers</span>
+
+            <div className="flex items-center gap-6 mt-3">
+              <div>
+                <span className="font-bold text-twitter-black">{user.following.length}</span>
+                <span className="text-twitter-darkGray ml-1">Following</span>
+              </div>
+              <div>
+                <span className="font-bold text-twitter-black">{user.followers.length}</span>
+                <span className="text-twitter-darkGray ml-1">Followers</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {isOwnProfile && formData && onCloseEdit && onSaveProfile && onFieldChange && (
+        <EditProfileModal
+          isOpen={isEditModalOpen}
+          onClose={onCloseEdit}
+          formData={formData}
+          onSave={onSaveProfile}
+          onFieldChange={onFieldChange}
+          isUpdating={isUpdating}
+        />
+      )}
+    </>
   );
 }
