@@ -17,6 +17,11 @@ const conversationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+conversationSchema.path("participants").validate(
+  (v) => Array.isArray(v) && v.length >= 2,
+  "A conversation must have at least 2 participants"
+);
+
 conversationSchema.index({ participants: 1 });
 
 const Conversation = mongoose.model("Conversation", conversationSchema);

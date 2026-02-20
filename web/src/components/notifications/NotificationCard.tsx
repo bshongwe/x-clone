@@ -13,7 +13,9 @@ interface NotificationCardProps {
   readonly notification: Notification;
 }
 
-export default function NotificationCard({ notification }: NotificationCardProps) {
+export default function NotificationCard({
+  notification
+}: NotificationCardProps) {
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
 
@@ -24,6 +26,9 @@ export default function NotificationCard({ notification }: NotificationCardProps
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+    onError: (error: unknown) => {
+      console.error("Failed to delete notification:", error);
     },
   });
 
@@ -54,7 +59,8 @@ export default function NotificationCard({ notification }: NotificationCardProps
   };
 
   return (
-    <div className="border-b border-twitter-extraLightGray p-4 hover:bg-twitter-extraExtraLightGray transition-colors">
+    <div className="border-b border-twitter-extraLightGray p-4
+      hover:bg-twitter-extraExtraLightGray transition-colors">
       <div className="flex space-x-3">
         <div className="flex-shrink-0 text-2xl mt-1">{getIcon()}</div>
 
@@ -71,7 +77,8 @@ export default function NotificationCard({ notification }: NotificationCardProps
                     className="rounded-full"
                   />
                 ) : (
-                  <div className="w-10 h-10 bg-twitter-lightGray rounded-full"></div>
+                  <div className="w-10 h-10 bg-twitter-lightGray
+                    rounded-full"></div>
                 )}
               </Link>
 
@@ -87,18 +94,27 @@ export default function NotificationCard({ notification }: NotificationCardProps
                 </p>
 
                 <p className="text-twitter-darkGray text-sm mt-1">
-                  {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                  {formatDistanceToNow(
+                    new Date(notification.createdAt),
+                    { addSuffix: true }
+                  )}
                 </p>
 
                 {notification.post && (
-                  <div className="mt-2 p-3 bg-twitter-extraExtraLightGray rounded-lg">
-                    <p className="text-twitter-black text-sm">{notification.post.content}</p>
+                  <div className="mt-2 p-3
+                    bg-twitter-extraExtraLightGray rounded-lg">
+                    <p className="text-twitter-black text-sm">
+                      {notification.post.content}
+                    </p>
                   </div>
                 )}
 
                 {notification.comment && (
-                  <div className="mt-2 p-3 bg-twitter-extraExtraLightGray rounded-lg">
-                    <p className="text-twitter-black text-sm">{notification.comment.content}</p>
+                  <div className="mt-2 p-3
+                    bg-twitter-extraExtraLightGray rounded-lg">
+                    <p className="text-twitter-black text-sm">
+                      {notification.comment.content}
+                    </p>
                   </div>
                 )}
               </div>
@@ -106,7 +122,10 @@ export default function NotificationCard({ notification }: NotificationCardProps
 
             <button
               onClick={() => deleteMutation.mutate()}
-              className="text-twitter-darkGray hover:text-red-500 p-2 hover:bg-red-50 rounded-full transition-colors ml-2"
+              disabled={deleteMutation.isPending}
+              className="text-twitter-darkGray hover:text-red-500 p-2
+                hover:bg-red-50 rounded-full transition-colors ml-2
+                disabled:opacity-50"
             >
               <FiTrash2 size={16} />
             </button>

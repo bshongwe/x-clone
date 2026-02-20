@@ -40,7 +40,7 @@ export default function MessagesPage() {
   const [searchText, setSearchText] = useState("");
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState("");
-  
+
   const { data: conversations = [], isLoading } = useConversations();
   const { data: messages = [] } = useMessages(selectedConversation?._id || null);
   const { data: currentUser } = useCurrentUser();
@@ -58,11 +58,11 @@ export default function MessagesPage() {
 
   const sendMessage = () => {
     if (!newMessage.trim() || !selectedConversation) return;
-    
+
     const recipient = selectedConversation.participants.find(
       (p) => p._id !== currentUser?.user?._id
     );
-    
+
     if (!recipient) return;
 
     sendMessageMutation.mutate(
@@ -228,7 +228,12 @@ export default function MessagesPage() {
                 placeholder="Start a message..."
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
               />
             </div>
             <button

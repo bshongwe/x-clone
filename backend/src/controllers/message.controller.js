@@ -5,10 +5,6 @@ import mongoose from "mongoose";
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
-const isParticipant = (conversation, userId) => {
-  return conversation.participants.some((id) => id.equals(userId));
-};
-
 export const getConversations = async (req, res) => {
   try {
     const conversations = await Conversation.find({
@@ -41,7 +37,7 @@ export const getMessages = async (req, res) => {
       return res.status(404).json({ error: "Conversation not found" });
     }
 
-    if (!isParticipant(conversation, req.user._id)) {
+    if (!conversation.participants.some((id) => id.equals(req.user._id))) {
       return res.status(403).json({ error: "Unauthorized" });
     }
 
@@ -60,6 +56,16 @@ export const sendMessage = async (req, res) => {
   try {
     const { recipientId, content } = req.body;
 
+    if (!recipientId) {
+      return res.status(400).json({ error: "recipientId is required" });
+    }
+
+    if (recipientId === req.user._id.toString()) {
+      return res.status(400).json({
+        error: "Cannot send a message to yourself"
+      });
+    }
+
     if (!content?.trim()) {
       return res.status(400).json({ error: "Message content is required" });
     }
@@ -73,15 +79,11 @@ export const sendMessage = async (req, res) => {
       return res.status(404).json({ error: "Recipient not found" });
     }
 
-    let conversation = await Conversation.findOne({
-      participants: { $all: [req.user._id, recipientId] },
-    });
-
-    if (!conversation) {
-      conversation = await Conversation.create({
-        participants: [req.user._id, recipientId],
-      });
-    }
+    const conversation = await Conversation.findOneAndUpdate(
+      { participants: { $all: [req.user._id, recipientId] } },
+      { $setOnInsert: { participants: [req.user._id, recipientId] } },
+      { upsert: true, new: true }
+    );
 
     const message = await Message.create({
       conversationId: conversation._id,
@@ -92,12 +94,12 @@ export const sendMessage = async (req, res) => {
     conversation.lastMessage = message._id;
     await conversation.save();
 
-    const populatedMessage = await Message.findById(message._id).populate(
+    await message.populate(
       "sender",
       "firstName lastName username profilePicture"
     );
 
-    res.status(201).json(populatedMessage);
+    res.status(201).json(message);
   } catch (error) {
     console.error("Error in sendMessage:", error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -107,7 +109,7 @@ export const sendMessage = async (req, res) => {
 export const deleteConversation = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
-  
+
   try {
     const { conversationId } = req.params;
 
@@ -116,13 +118,15 @@ export const deleteConversation = async (req, res) => {
       return res.status(400).json({ error: "Invalid conversation ID" });
     }
 
-    const conversation = await Conversation.findById(conversationId).session(session);
+    const conversation = await Conversation.findById(
+      conversationId
+    ).session(session);
     if (!conversation) {
       await session.abortTransaction();
       return res.status(404).json({ error: "Conversation not found" });
     }
 
-    if (!isParticipant(conversation, req.user._id)) {
+    if (!conversation.participants.some((id) => id.equals(req.user._id))) {
       await session.abortTransaction();
       return res.status(403).json({ error: "Unauthorized" });
     }

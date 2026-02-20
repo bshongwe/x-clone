@@ -86,9 +86,9 @@ const MessagesScreen = () => {
   };
 
   const sendMessage = () => {
-    if (!newMessage.trim() || !selectedConversation) return;
+    if (!newMessage.trim() || !selectedConversation || !currentUser) return;
 
-    const recipient = selectedConversation.participants.find((p) => p._id !== currentUser._id);
+    const recipient = selectedConversation.participants.find((p) => p._id !== currentUser?._id);
     if (!recipient) return;
 
     sendMessageMutation.mutate(
@@ -103,7 +103,7 @@ const MessagesScreen = () => {
   };
 
   const getOtherParticipant = (conversation: Conversation) => {
-    return conversation.participants.find((p) => p._id !== currentUser._id);
+    return conversation.participants.find((p) => p._id !== currentUser?._id);
   };
 
   const renderConversationsList = () => {
@@ -241,7 +241,7 @@ const MessagesScreen = () => {
 
                   {/* Conversation Messages */}
                   {(messages as Message[]).map((message) => {
-                    const isFromCurrentUser = message.sender._id === currentUser._id;
+                    const isFromCurrentUser = message.sender._id === currentUser?._id;
                     return (
                       <View
                         key={message._id}
