@@ -105,28 +105,38 @@ export const sendMessage = async (req, res) => {
 };
 
 export const deleteConversation = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  
   try {
     const { conversationId } = req.params;
 
     if (!isValidObjectId(conversationId)) {
+      await session.abortTransaction();
       return res.status(400).json({ error: "Invalid conversation ID" });
     }
 
-    const conversation = await Conversation.findById(conversationId);
+    const conversation = await Conversation.findById(conversationId).session(session);
     if (!conversation) {
+      await session.abortTransaction();
       return res.status(404).json({ error: "Conversation not found" });
     }
 
     if (!isParticipant(conversation, req.user._id)) {
+      await session.abortTransaction();
       return res.status(403).json({ error: "Unauthorized" });
     }
 
-    await Message.deleteMany({ conversationId });
-    await Conversation.findByIdAndDelete(conversationId);
+    await Message.deleteMany({ conversationId }, { session });
+    await Conversation.findByIdAndDelete(conversationId, { session });
 
+    await session.commitTransaction();
     res.json({ message: "Conversation deleted successfully" });
   } catch (error) {
+    await session.abortTransaction();
     console.error("Error in deleteConversation:", error.message);
     res.status(500).json({ error: "Internal server error" });
+  } finally {
+    session.endSession();
   }
 };
